@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'widgets/frame.dart';
+import 'widgets/nicebutton.dart';
+
+import 'bench1.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,43 +33,17 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.white,
-        body: Column(
-          children: [
-            Container(
-                margin: const EdgeInsets.fromLTRB(0, 70, 0, 0),
-                child:
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Column(children: const [
-                    Text(
-                      "BechmarkApp",
-                      style:
-                          TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
-                    ),
-                    FlutterLogo(
-                      size: 100,
-                    )
-                  ])
-                ])),
-            Expanded(child: Container()),
-            Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 0, 70),
-                child:
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const Text("START",
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.white,
-                      minimumSize: const Size(240, 50),
-                      maximumSize: const Size(240, 50),
-                    ),
-                  )
-                ]))
-          ],
+    return Frame(
+        text: "BechmarkApp",
+        showLogo: true,
+        button: NiceButton(
+          text: "START",
+          onPressed: () {
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (BuildContext c) {
+              return Bench1();
+            }), (route) => false);
+          },
         ));
   }
 }
