@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'widgets/frame.dart';
 
+import 'bench3.dart';
+
 class Bench2 extends StatefulWidget {
   const Bench2({Key? key}) : super(key: key);
 
@@ -12,6 +14,13 @@ class _Bench2State extends State<Bench2> {
   @override
   void initState() {
     super.initState();
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (BuildContext c) {
+        return Bench3();
+      }));
+    });
   }
 
   @override
