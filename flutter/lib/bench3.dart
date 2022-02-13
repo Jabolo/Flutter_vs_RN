@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'widgets/frame.dart';
 
-import 'result.dart';
+import 'benchmark_manager.dart';
 
 class Bench3 extends StatefulWidget {
   const Bench3({Key? key}) : super(key: key);
@@ -16,18 +16,18 @@ class _Bench3State extends State<Bench3> {
     super.initState();
 
     Future.delayed(const Duration(milliseconds: 1000), () {
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (BuildContext c) {
-        return Result();
-      }));
+      BenchmarkManager.of(context).nextBenchmark(context);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final i = BenchmarkManager.of(context).benchmarkIndex;
+    final len = BenchmarkManager.of(context).benchmarksLength;
+
     return Frame(
         text: "Anim",
-        topText: "3/3",
+        topText: "${i + 1}/$len",
         child: Container(
             color: Colors.white,
             child: Column(

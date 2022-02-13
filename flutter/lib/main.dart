@@ -3,6 +3,12 @@ import 'widgets/frame.dart';
 import 'widgets/nicebutton.dart';
 
 import 'bench1.dart';
+import 'bench2.dart';
+import 'bench3.dart';
+import 'benchmark_manager.dart';
+import 'result.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   runApp(const MyApp());
@@ -13,13 +19,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Benchmark',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MainScreen(),
-    );
+    return BenchmarkManager(
+        benchmarks: [Bench1(), Bench2(), Bench3()],
+        onFinished: (result) {
+          navigatorKey.currentState?.pushAndRemoveUntil(
+              MaterialPageRoute(builder: (BuildContext c) {
+            return Result(
+              results: result,
+            );
+          }), (route) => false);
+        },
+        child: MaterialApp(
+          navigatorKey: navigatorKey,
+          title: 'Flutter Benchmark',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+          home: const MainScreen(),
+        ));
   }
 }
 
@@ -39,10 +56,7 @@ class _MainScreenState extends State<MainScreen> {
         button: NiceButton(
           text: "START",
           onPressed: () {
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (BuildContext c) {
-              return Bench1();
-            }), (route) => false);
+            BenchmarkManager.of(context).nextBenchmark(context);
           },
         ));
   }

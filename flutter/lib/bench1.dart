@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'widgets/frame.dart';
-import 'bench2.dart';
+import 'benchmark_manager.dart';
 
 // LZW-compress a string
 String lzwEncode(String s) {
@@ -47,15 +47,19 @@ class _Bench1State extends State<Bench1> {
         var result = lzwEncode("looong randooom ttteeeexxxttt");
       }
       sw.stop();
-      print("elasped time: ${sw.elapsedMicroseconds}us");
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext c) {
-              return Bench2();
-            }));
+      BenchmarkManager.of(context).setResult(sw.elapsedMicroseconds);
+      BenchmarkManager.of(context).nextBenchmark(context);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Frame(text: "Calculation", topText: "1/2",);
+    final i = BenchmarkManager.of(context).benchmarkIndex;
+    final len = BenchmarkManager.of(context).benchmarksLength;
+
+    return Frame(
+      text: "Calculation",
+      topText: "${i + 1}/$len",
+    );
   }
 }
