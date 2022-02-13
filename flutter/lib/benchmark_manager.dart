@@ -17,6 +17,14 @@ class BenchmarkManager extends StatefulWidget {
   static BenchmarkManagerState of(BuildContext context) {
     return context.findAncestorStateOfType<BenchmarkManagerState>()!;
   }
+
+  static void setResult(BuildContext context, dynamic data) {
+    BenchmarkManager.of(context).setResult(data);
+  }
+
+  static void nextBenchmark(BuildContext context) {
+    BenchmarkManager.of(context).nextBenchmark(context);
+  }
 }
 
 class BenchmarkManagerState extends State<BenchmarkManager> {
@@ -33,7 +41,6 @@ class BenchmarkManagerState extends State<BenchmarkManager> {
 
   void nextBenchmark(BuildContext myContext) {
     _benchmarkIndex++;
-    print(_benchmarkIndex);
 
     if (benchmarkIndex >= widget.benchmarks.length) {
       widget.onFinished(results);

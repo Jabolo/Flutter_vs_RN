@@ -56,7 +56,7 @@ class _MainScreenState extends State<MainScreen> {
         button: NiceButton(
           text: "START",
           onPressed: () {
-            BenchmarkManager.of(context).nextBenchmark(context);
+            BenchmarkManager.nextBenchmark(context);
           },
         ));
   }

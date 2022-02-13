@@ -47,8 +47,8 @@ class _Bench1State extends State<Bench1> {
         var result = lzwEncode("looong randooom ttteeeexxxttt");
       }
       sw.stop();
-      BenchmarkManager.of(context).setResult(sw.elapsedMicroseconds);
-      BenchmarkManager.of(context).nextBenchmark(context);
+      BenchmarkManager.setResult(context, sw.elapsedMicroseconds);
+      BenchmarkManager.nextBenchmark(context);
     });
   }
 

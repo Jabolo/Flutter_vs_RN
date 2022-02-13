@@ -16,7 +16,7 @@ class _Bench2State extends State<Bench2> {
     super.initState();
 
     Future.delayed(const Duration(milliseconds: 1000), () {
-      BenchmarkManager.of(context).nextBenchmark(context);
+      BenchmarkManager.nextBenchmark(context);
     });
   }
 

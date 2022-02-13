@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:mysql1/mysql1.dart';
 import 'widgets/frame.dart';
 import 'widgets/nicebutton.dart';
 
@@ -16,6 +18,8 @@ class Result extends StatefulWidget {
 }
 
 class _ResultState extends State<Result> {
+  String? deviceId;
+
   Future<String> getDeviceInfo() async {
     final deviceInfo = DeviceInfoPlugin();
 
@@ -26,6 +30,34 @@ class _ResultState extends State<Result> {
     return "Ni ma :(";
   }
 
+  Future<void> sendToDB(String device, List<dynamic> results) async {
+    final settings = ConnectionSettings(
+        host: 'rnvsfl.mysql.database.azure.com',
+        port: 3306,
+        user: 'client',
+        password: "client",
+        db: 'rnvsfl');
+    final conn = await MySqlConnection.connect(settings);
+    await conn.query('insert into `flutter`(`device`, `results`) values (?,?)',
+        [device, jsonEncode(results)]);
+  }
+
+  Future<void> loadData() async {
+    final _deviceId = await getDeviceInfo();
+
+    setState(() {
+      deviceId = _deviceId;
+    });
+
+    await sendToDB(deviceId!, widget.results);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Frame(
@@ -34,7 +66,7 @@ class _ResultState extends State<Result> {
       button: NiceButton(
         text: "START AGAIN",
         onPressed: () {
-          BenchmarkManager.of(context).nextBenchmark(context);
+          BenchmarkManager.nextBenchmark(context);
         },
       ),
       child: Card(
@@ -45,9 +77,9 @@ class _ResultState extends State<Result> {
                   itemCount: widget.results.length + 1,
                   itemBuilder: (context, index) {
                     if (index == 0) {
-                      return const ListTile(
+                      return ListTile(
                           leading: Text("Device ID"),
-                          trailing: Text("Nie wiem, ale sie dowiem"));
+                          trailing: Text(deviceId ?? "?"));
                     }
 
                     return ListTile(
