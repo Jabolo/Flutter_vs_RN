@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'widgets/frame.dart';
 
 import 'benchmark_manager.dart';
@@ -11,12 +12,12 @@ class Bench3 extends StatefulWidget {
 }
 
 class _Bench3State extends State<Bench3> {
-  @override
-  void initState() {
-    super.initState();
-
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      BenchmarkManager.nextBenchmark(context);
+  void _cb(LottieComposition lc) {
+    Future.delayed(const Duration(seconds: 1), () {
+      BenchmarkManager.measureFPS(5, (fps) {
+        BenchmarkManager.setResult(context, fps);
+        BenchmarkManager.nextBenchmark(context);
+      });
     });
   }
 
@@ -42,6 +43,8 @@ class _Bench3State extends State<Bench3> {
                           child: AspectRatio(
                               aspectRatio: 1.0,
                               child: Container(
+                                child: Lottie.asset('assets/data.json',
+                                    onLoaded: (i == 0 && j == 0) ? _cb : null),
                                 decoration: const BoxDecoration(
                                     gradient: LinearGradient(
                                       begin: Alignment.centerLeft,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:performance_fps/performance_fps.dart';
 
 class BenchmarkManager extends StatefulWidget {
   BenchmarkManager(
@@ -24,6 +25,36 @@ class BenchmarkManager extends StatefulWidget {
 
   static void nextBenchmark(BuildContext context) {
     BenchmarkManager.of(context).nextBenchmark(context);
+  }
+
+  static int measureMicroTime(Function worker) {
+    final sw = Stopwatch();
+    sw.start();
+    worker();
+    sw.stop();
+    return sw.elapsedMicroseconds;
+  }
+
+  static void measureFPS(int seconds, Function(double) callback) {
+    double _frames = 0;
+    double _time = 0;
+    Stopwatch? sw;
+    Fps.instance.registerCallBack((fps, dropCount) {
+      if (sw != null) {
+        sw!.stop();
+
+        double time = sw!.elapsedMilliseconds / 1000.0;
+        _time += time;
+        _frames += fps * time;
+
+        if (_time >= seconds) {
+          Fps.instance.cancel();
+          callback(_frames / _time);
+        }
+      }
+      sw = Stopwatch();
+      sw!.start();
+    });
   }
 }
 
