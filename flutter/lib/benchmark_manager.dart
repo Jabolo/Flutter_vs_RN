@@ -39,7 +39,8 @@ class BenchmarkManager extends StatefulWidget {
     double _frames = 0;
     double _time = 0;
     Stopwatch? sw;
-    Fps.instance.registerCallBack((fps, dropCount) {
+
+    void cb(double fps, double dropCount) {
       if (sw != null) {
         sw!.stop();
 
@@ -48,13 +49,17 @@ class BenchmarkManager extends StatefulWidget {
         _frames += fps * time;
 
         if (_time >= seconds) {
-          Fps.instance.cancel();
+          Future.delayed(Duration.zero, () {
+            Fps.instance.unregisterCallBack(cb);
+          });
           callback(_frames / _time);
         }
       }
       sw = Stopwatch();
       sw!.start();
-    });
+    }
+
+    Fps.instance.registerCallBack(cb);
   }
 }
 
