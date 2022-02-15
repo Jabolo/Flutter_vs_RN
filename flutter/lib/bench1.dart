@@ -41,13 +41,13 @@ class _Bench1State extends State<Bench1> {
     super.initState();
 
     Future.delayed(const Duration(milliseconds: 1000), () {
-      var sw = Stopwatch();
-      sw.start();
-      for (int i = 0; i < 10000; i++) {
-        var result = lzwEncode("looong randooom ttteeeexxxttt");
-      }
-      sw.stop();
-      BenchmarkManager.setResult(context, sw.elapsedMicroseconds);
+      final result = BenchmarkManager.measureMicroTime(() {
+        for (int i = 0; i < 10000; i++) {
+          final _output = lzwEncode("looong randooom ttteeeexxxttt");
+        }
+      });
+
+      BenchmarkManager.setResult(context, result);
       BenchmarkManager.nextBenchmark(context);
     });
   }
