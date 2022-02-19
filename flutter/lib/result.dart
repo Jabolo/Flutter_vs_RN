@@ -31,15 +31,22 @@ class _ResultState extends State<Result> {
   }
 
   Future<void> sendToDB(String device, List<dynamic> results) async {
-    final settings = ConnectionSettings(
-        host: 'rnvsfl.mysql.database.azure.com',
-        port: 3306,
-        user: 'client',
-        password: "client",
-        db: 'rnvsfl');
-    final conn = await MySqlConnection.connect(settings);
-    await conn.query('insert into `flutter`(`device`, `results`) values (?,?)',
-        [device, jsonEncode(results)]);
+    // we should create some azure function to pass data from
+    // REST request to database instead of connecting directly
+    try {
+      final settings = ConnectionSettings(
+          host: 'rnvsfl.mysql.database.azure.com',
+          port: 3306,
+          user: 'client',
+          password: "client",
+          db: 'rnvsfl');
+      final conn = await MySqlConnection.connect(settings);
+      await conn.query(
+          'insert into `flutter`(`device`, `results`) values (?,?)',
+          [device, jsonEncode(results)]);
+    } catch (e) {
+      print("Cannot connect to db :(");
+    }
   }
 
   Future<void> loadData() async {
