@@ -5,6 +5,7 @@ import 'widgets/nicebutton.dart';
 import 'bench1.dart';
 import 'bench2.dart';
 import 'bench3.dart';
+import 'bench4.dart';
 import 'benchmark_manager.dart';
 import 'result.dart';
 
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BenchmarkManager(
-        benchmarks: [Bench1(), Bench2(), Bench3()],
+        benchmarks: [Bench1(), Bench2(), Bench3(), Bench4()],
         onFinished: (result) {
           navigatorKey.currentState?.pushAndRemoveUntil(
               MaterialPageRoute(builder: (BuildContext c) {
