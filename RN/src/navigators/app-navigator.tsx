@@ -55,7 +55,7 @@ const MainNavigator = () => {
       screenOptions={{
         headerShown: false,
       }}
-      initialRouteName="Main">
+      initialRouteName="GettingData">
       <MainStack.Screen name="Main" component={MainScreen} />
       <MainStack.Screen
         name="CompressingData"
