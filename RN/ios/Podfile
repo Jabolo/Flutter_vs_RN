@@ -11,9 +11,7 @@ target 'RN' do
     # to enable hermes on iOS, change `false` to `true` and then install pods
     :hermes_enabled => false
   )
-
-  pod 'RNFS', :path => '../node_modules/react-native-fs'
-
+  
   target 'RNTests' do
     inherit! :complete
     # Pods for testing

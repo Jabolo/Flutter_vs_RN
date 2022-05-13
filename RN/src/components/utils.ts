@@ -6,7 +6,9 @@ export const measureMicroTime = (fun: () => void) => {
   const end = new Date().getTime();
   return end - start;
 };
-
+export const getRandomInt = (max: number) => {
+  return Math.floor(Math.random() * max);
+};
 export const lzwEncode = (str: string) => {
   let dict = {};
   const data = (str + '').split('');
