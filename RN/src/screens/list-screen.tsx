@@ -9,10 +9,12 @@ import {
   ViewStyle,
 } from 'react-native';
 import {useStores} from '../App';
-import {Button, Text} from '../components';
+import {Text} from '../components';
 import {useFPSMetric} from '../components/utils';
 import {MainNavigatorParamList} from '../navigators/app-navigator';
-const {width, height} = Dimensions.get('window');
+
+const {height} = Dimensions.get('window');
+
 const BACKGROUND_CONTAINER: ViewStyle = {
   flex: 1,
 };
@@ -47,23 +49,18 @@ const ListScreen = () => {
   const scrollViewRef = useRef();
 
   useEffect(() => {
-    setInterval(() => {
-      addListResult(fps);
-      setSeconds(seconds + 1);
-    }, 5000);
-  }, [addListResult, seconds, fps]);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       if (seconds > 5) {
         clearInterval(interval);
+        navigate('Animation');
       } else {
         addListResult(fps);
         setSeconds(seconds + 1);
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [addListResult, fps, seconds]);
+  }, [seconds]);
+
   return (
     <SafeAreaView style={BACKGROUND_CONTAINER}>
       <View style={CONTAINER}>
@@ -79,7 +76,6 @@ const ListScreen = () => {
             renderItem={renderItem}
           />
         </View>
-        <Button label="Animation" onPress={() => navigate('Animation')} />
       </View>
     </SafeAreaView>
   );

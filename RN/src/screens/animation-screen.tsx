@@ -1,12 +1,12 @@
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import LottieView from 'lottie-react-native';
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView, View, ViewStyle} from 'react-native';
-import {Button, Text} from '../components';
-import {MainNavigatorParamList} from '../navigators/app-navigator';
-import LottieView from 'lottie-react-native';
 import {useStores} from '../App';
+import {Text} from '../components';
 import {useFPSMetric} from '../components/utils';
+import {MainNavigatorParamList} from '../navigators/app-navigator';
 
 const data = require('./data.json');
 
@@ -31,13 +31,19 @@ type MainNavigationProps = NativeStackNavigationProp<
   MainNavigatorParamList,
   'Animation'
 >;
-const arr = [...Array(4).keys()]
-const renderAnimation = arr.map(() => (
-  <LottieView style={ANIMATION} source={data} autoPlay loop />
-));
-const renderAnimations = arr.map(() => (
-  <View style={ROW}>{...renderAnimation()}</View>
-));
+const arr = [...Array(4).keys()];
+const renderAnimation = () =>
+  arr.map(item => (
+    <View key={item}>
+      <LottieView key={item} style={ANIMATION} source={data} autoPlay loop />
+    </View>
+  ));
+const renderAnimations = () =>
+  arr.map(item => (
+    <View key={item} style={ROW}>
+      {renderAnimation()}
+    </View>
+  ));
 const AnimationScreen = () => {
   const {navigate} = useNavigation<MainNavigationProps>();
   const {
@@ -53,13 +59,14 @@ const AnimationScreen = () => {
     const interval = setInterval(() => {
       if (seconds > 5) {
         clearInterval(interval);
+        navigate('GettingData');
       } else {
         addAnimationResult(fps);
         setSeconds(seconds + 1);
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [addAnimationResult, fps, seconds]);
+  }, [seconds]);
 
   return (
     <SafeAreaView style={BACKGROUND_CONTAINER}>
@@ -68,9 +75,7 @@ const AnimationScreen = () => {
           <Text text="3/4" />
           <Text text="Animation" />
         </View>
-     {  renderAnimations()}
-        </View>
-        <Button label="Getting Data" onPress={() => navigate('GettingData')} />
+        <View>{renderAnimations()}</View>
       </View>
     </SafeAreaView>
   );

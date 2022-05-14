@@ -1,11 +1,22 @@
 import {action, flow, makeObservable, observable} from 'mobx';
+import {Platform} from 'react-native';
+import DeviceInfo from 'react-native-device-info';
+import RNFetchBlob from 'rn-fetch-blob';
 import {IDeviceInfo} from '../components/types/device-info';
+import {getRandomInt, lzwEncode, measureMicroTime} from '../components/utils';
+import {navigate} from '../navigators/app-navigator';
 import benchmarkApi from '../services/api/benchmark-api';
 import BaseStore from './base-store';
 import RootStore from './root-store';
-import DeviceInfo from 'react-native-device-info';
-import {Platform} from 'react-native';
-import {lzwEncode, measureMicroTime} from '../components/utils';
+const sizes = [
+  1024 * 1,
+  1024 * 8,
+  1024 * 64,
+  1024 * 512,
+  // 1024 * 4096,
+  // 1024 * 32768,
+];
+const counts = [60, 50, 40, 20, 10, 1];
 
 export default class BenchmarkStore extends BaseStore {
   compressingResult = 0;
@@ -21,6 +32,7 @@ export default class BenchmarkStore extends BaseStore {
       listResult: observable,
       animationResult: observable,
       deviceInfo: observable,
+      compressingInit: action,
       setDeviceInfo: action,
       setCompressingData: action,
       addListResult: action,
@@ -43,26 +55,81 @@ export default class BenchmarkStore extends BaseStore {
   setDeviceInfo = (deviceInfo: IDeviceInfo | null) => {
     this.deviceInfo = deviceInfo;
   };
+  clearStore = () => {
+    this.compressingResult = 0;
+    this.gettingDataResult = [];
+    this.listResult = [];
+    this.animationResult = [];
+    this.deviceInfo = null;
+  };
 
-  onCompressingPress = () => {
+  compressingInit = () => {
     const testResult = measureMicroTime(() => {
       for (let i = 0; i < 10000; i++) {
         lzwEncode('looong randooom ttteeeexxxttt');
       }
     });
     this.setCompressingData(testResult);
+    navigate('List');
+  };
+
+  readTime = async (size: number, count: number) => {
+    const path = `${RNFetchBlob.fs.dirs.DownloadDir}/${size}.bin`;
+    const bytes = Array.from({length: size}, () => getRandomInt(200));
+    await RNFetchBlob.fs.writeFile(path, bytes, 'ascii');
+    let result = 0;
+    for (let i = 0; i < count; i++) {
+      const start = new Date().getTime();
+      await RNFetchBlob.fs.writeFile(path, bytes, 'ascii');
+      result += new Date().getTime() - start;
+    }
+    const exists = await RNFetchBlob.fs.exists(path);
+
+    if (exists) {
+      try {
+        await RNFetchBlob.fs.unlink(path);
+      } catch (error) {
+        console.log('[ERROR] unlink: errors');
+      }
+    }
+    return result;
+  };
+
+  initGettingData = async () => {
+    const results = [];
+    for (let i = 0; i < sizes.length; i++) {
+      results.push(await this.readTime(sizes[i], counts[i]));
+    }
+    this.setGettingDataResult(results);
+    navigate('Result');
   };
 
   sendResult = flow(function* (this: BenchmarkStore) {
     try {
-      const device = {};
       const results = [
         {number: 1, name: 'Compressing data', result: this.compressingResult},
-        {number: 2, name: 'List', result: this.listResult},
-        {number: 3, name: 'Animation', result: this.animationResult},
-        {number: 4, name: 'Getting data', result: this.gettingDataResult},
+        {
+          number: 2,
+          name: 'List',
+          result:
+            this.listResult.slice(1).reduce((a, b) => a + b, 0) /
+            this.listResult.length,
+        },
+        {
+          number: 3,
+          name: 'Animation',
+          result:
+            this.animationResult.slice(1).reduce((a, b) => a + b, 0) /
+            this.listResult.length,
+        },
+        {
+          number: 4,
+          name: 'Getting data',
+          result: this.gettingDataResult,
+        },
       ];
-      yield benchmarkApi.sendResult(device, results);
+      const api = yield benchmarkApi.sendResult(this.deviceInfo, results);
+      console.log('api', api);
     } catch (error) {
       console.log('checkHealthApi [ERROR]:', error);
     }

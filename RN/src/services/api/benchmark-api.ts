@@ -10,7 +10,6 @@ class BenchmarkApi {
         device,
         result,
       });
-
       if (!response.ok) {
         const problem = getGeneralApiProblem(response);
         if (problem) return problem;
