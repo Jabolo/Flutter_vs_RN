@@ -4,11 +4,11 @@ import {Api} from '.';
 import {getGeneralApiProblem} from './api-problem';
 
 class BenchmarkApi {
-  async sendResult(device: any, result: any[]) {
+  async sendResult(device: any, results: any[]) {
     try {
       const response: ApiResponse<any> = await Api.apisauce.post('/react', {
-        device,
-        result,
+        device: JSON.stringify(device),
+        results: JSON.stringify(results),
       });
       if (!response.ok) {
         const problem = getGeneralApiProblem(response);

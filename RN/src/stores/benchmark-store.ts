@@ -1,4 +1,4 @@
-import {action, flow, makeObservable, observable} from 'mobx';
+import {action, computed, flow, makeObservable, observable} from 'mobx';
 import {Platform} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -8,15 +8,8 @@ import {navigate} from '../navigators/app-navigator';
 import benchmarkApi from '../services/api/benchmark-api';
 import BaseStore from './base-store';
 import RootStore from './root-store';
-const sizes = [
-  1024 * 1,
-  1024 * 8,
-  1024 * 64,
-  1024 * 512,
-  // 1024 * 4096,
-  // 1024 * 32768,
-];
-const counts = [60, 50, 40, 20, 10, 1];
+const sizes = [1024 * 1, 1024 * 8, 1024 * 64, 1024 * 512];
+const counts = [60, 50, 40, 20];
 
 export default class BenchmarkStore extends BaseStore {
   compressingResult = 0;
@@ -37,6 +30,7 @@ export default class BenchmarkStore extends BaseStore {
       setCompressingData: action,
       addListResult: action,
       addAnimationResult: action,
+      results: computed,
     });
   }
 
@@ -106,29 +100,7 @@ export default class BenchmarkStore extends BaseStore {
 
   sendResult = flow(function* (this: BenchmarkStore) {
     try {
-      const results = [
-        {number: 1, name: 'Compressing data', result: this.compressingResult},
-        {
-          number: 2,
-          name: 'List',
-          result:
-            this.listResult.slice(1).reduce((a, b) => a + b, 0) /
-            this.listResult.length,
-        },
-        {
-          number: 3,
-          name: 'Animation',
-          result:
-            this.animationResult.slice(1).reduce((a, b) => a + b, 0) /
-            this.listResult.length,
-        },
-        {
-          number: 4,
-          name: 'Getting data',
-          result: this.gettingDataResult,
-        },
-      ];
-      const api = yield benchmarkApi.sendResult(this.deviceInfo, results);
+      const api = yield benchmarkApi.sendResult(this.deviceInfo, this.results);
       console.log('api', api);
     } catch (error) {
       console.log('checkHealthApi [ERROR]:', error);
@@ -156,4 +128,29 @@ export default class BenchmarkStore extends BaseStore {
       console.log('checkHealthApi [ERROR]:', error);
     }
   }).bind(this);
+
+  get results() {
+    return [
+      {number: 1, name: 'Compressing data', result: this.compressingResult},
+      {
+        number: 2,
+        name: 'List',
+        result:
+          this.listResult.slice(1).reduce((a, b) => a + b, 0) /
+          this.listResult.length,
+      },
+      {
+        number: 3,
+        name: 'Animation',
+        result:
+          this.animationResult.slice(1).reduce((a, b) => a + b, 0) /
+          this.listResult.length,
+      },
+      {
+        number: 4,
+        name: 'Getting data',
+        result: this.gettingDataResult,
+      },
+    ];
+  }
 }
