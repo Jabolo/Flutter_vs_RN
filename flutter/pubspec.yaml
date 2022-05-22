@@ -31,11 +31,7 @@ dependencies:
     sdk: flutter
   path_provider: ^2.0.8
   device_info_plus: ^3.2.1
-  mysql1: ^0.19.2
-  performance_fps:
-    git:
-      url: git://github.com/SKKbySSK/flutter_fps.git
-      ref: null-safety
+  performance_fps: ^0.0.7
   lottie: ^1.2.1
 
   # The following adds the Cupertino Icons font to your application.
