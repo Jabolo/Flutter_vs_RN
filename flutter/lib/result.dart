@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
+import 'package:http/http.dart' as http;
 import 'widgets/frame.dart';
 import 'widgets/nicebutton.dart';
 
@@ -31,19 +31,25 @@ class _ResultState extends State<Result> {
   }
 
   Future<void> sendToDB(String device, List<dynamic> results) async {
-    // we should create some azure function to pass data from
-    // REST request to database instead of connecting directly
     try {
-      final settings = ConnectionSettings(
-          host: 'rnvsfl.mysql.database.azure.com',
-          port: 3306,
-          user: 'client',
-          password: "client",
-          db: 'rnvsfl');
-      final conn = await MySqlConnection.connect(settings);
-      await conn.query(
-          'insert into `flutter`(`device`, `results`) values (?,?)',
-          [device, jsonEncode(results)]);
+      // POST: https://db-proxy.azurewebsites.net/api/flutter
+      // body:
+      // {
+      //   "device": "my_device",
+      //   "results": "[result1, resul2, result3, etc]"
+      // }
+      final body = jsonEncode({
+        'device': device,
+        'results': jsonEncode(results),
+      });
+      final response = await http.post(
+        Uri.parse('https://db-proxy.azurewebsites.net/api/flutter'),
+        body: body,
+      );
+      if(response.statusCode != 200)
+      {
+        print("Error from proxy: ${response.statusCode} ${response.body}");
+      }
     } catch (e) {
       print("Cannot connect to db :(");
     }
