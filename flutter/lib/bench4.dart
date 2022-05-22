@@ -19,11 +19,18 @@ class _Bench4State extends State<Bench4> {
     1024 * 8,
     1024 * 64,
     1024 * 512,
-    1024 * 4096,
-    1024 * 32768
+    // 1024 * 4096,
+    // 1024 * 32768,
   ];
 
-  static const counts = [60, 50, 40, 20, 10, 1];
+  static const counts = [
+    60,
+    50,
+    40,
+    20,
+   // 10,
+   // 1,
+  ];
 
   Future<int> readTime(int size, int count) async {
     Directory dir = await getApplicationDocumentsDirectory();

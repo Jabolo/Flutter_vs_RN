@@ -18,16 +18,12 @@ class Result extends StatefulWidget {
 }
 
 class _ResultState extends State<Result> {
-  String? deviceId;
+  Map<String, dynamic>? deviceId;
 
-  Future<String> getDeviceInfo() async {
-    final deviceInfo = DeviceInfoPlugin();
-
-    if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      return androidInfo.board!;
-    }
-    return "Ni ma :(";
+  Future<Map<String, dynamic>> getDeviceInfo() async {
+    final deviceInfoPlugin = DeviceInfoPlugin();
+    final deviceInfo = await deviceInfoPlugin.deviceInfo;
+    return deviceInfo.toMap();
   }
 
   Future<void> sendToDB(String device, List<dynamic> results) async {
@@ -38,16 +34,17 @@ class _ResultState extends State<Result> {
       //   "device": "my_device",
       //   "results": "[result1, resul2, result3, etc]"
       // }
-      final body = jsonEncode({
-        'device': device,
-        'results': jsonEncode(results),
-      });
+      final body = jsonEncode(
+        {
+          'device': device,
+          'results': jsonEncode(results),
+        },
+      );
       final response = await http.post(
         Uri.parse('https://db-proxy.azurewebsites.net/api/flutter'),
         body: body,
       );
-      if(response.statusCode != 200)
-      {
+      if (response.statusCode != 200) {
         print("Error from proxy: ${response.statusCode} ${response.body}");
       }
     } catch (e) {
@@ -62,7 +59,7 @@ class _ResultState extends State<Result> {
       deviceId = _deviceId;
     });
 
-    await sendToDB(deviceId!, widget.results);
+    await sendToDB(jsonEncode(deviceId), widget.results);
   }
 
   @override
@@ -83,24 +80,46 @@ class _ResultState extends State<Result> {
         },
       ),
       child: Card(
-          margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 60),
-          child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: ListView.builder(
-                  itemCount: widget.results.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return ListTile(
-                          leading: Text("Device ID"),
-                          trailing: Text(deviceId ?? "?"));
-                    }
+        margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 60),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: ListView.builder(
+            itemCount: widget.results.length + 1,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return _buildRow(
+                  "Device ID",
+                  deviceId?.values.first ?? "?",
+                );
+              }
 
-                    return ListTile(
-                      leading: Text("Bench$index"),
-                      trailing: Text(widget.results[index - 1]
-                          .toString()), // TODO: zrobic ladna zielona ikonke jak na figma
-                    );
-                  }))),
+              return _buildRow(
+                "Bench$index",
+                widget.results[index - 1].toString(),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRow(String title, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.only(left: 8),
+            alignment: Alignment.centerRight,
+            child: Text(
+              value,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
